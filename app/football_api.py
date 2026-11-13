@@ -1,4 +1,5 @@
 import math
+import time
 from collections import defaultdict
 from itertools import groupby
 
@@ -30,11 +31,19 @@ HEADERS = {
 
 
 # ---------------------------------------------------------------- API calls
-def api_request(endpoint):
+def api_request(endpoint, retries=3):
     url = f"{BASE_URL}/{endpoint}"
 
-    response = requests.get(url, headers=HEADERS, timeout=20)
-    response.raise_for_status()
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, headers=HEADERS, timeout=60)
+            response.raise_for_status()
+            break
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError):
+            if attempt == retries - 1:
+                raise
+            time.sleep(2)
+
     data = response.json()
 
     if not data.get("success", False):
@@ -203,6 +212,7 @@ def calculate_expected_score(home_elo, away_elo):
     return 1 / (1 + 10 ** ((away_elo - home_rating) / 400))
 
 
+@st.cache_data(ttl=3600)
 def calculate_all_elo():
     """
     Build Elo ratings for every team using all completed matches
