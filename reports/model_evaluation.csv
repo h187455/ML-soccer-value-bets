@@ -1,0 +1,2 @@
+model,accuracy,log_loss,brier_score,baseline_accuracy,baseline_log_loss,training_validation_matches,test_matches
+Logistic Regression,0.5334947538337369,0.98357693808,0.5827467016042773,0.43099273607748184,1.0745190886702343,7017,1239
