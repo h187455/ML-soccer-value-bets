@@ -5,44 +5,41 @@ Mathias Fåberg
 
 1. BESKRIVELSE AV PROBLEMET
 
-### 1.1 Omfang og mål
+1.1 Omfang og mål
 
-Målet med prosjektet var å utvikle en applikasjon som benytter maskinlæring for å analysere fotballkamper og gi oss prediksjoner for hvordan de går. Applikasjonen skal estimere sannsynligheten for de tre mulige kampresultatene: hjemmeseier, uavgjort og borteseier. Deretter vil vi gi applikasjonen odds for de ulike resultatene fra en bookmaker, så vil applikasjonen si oss om den tenker oddsene er gunstige eller ikke.
+Målet med prosjektet var å utvikle en applikasjon som benytter maskinlæring for å analysere fotballkamper og gi oss prediksjoner for resultat til kampene. Applikasjonen skal estimere sannsynligheten for de tre mulige kampresultatene: hjemmeseier, uavgjort og borteseier. Deretter vil vi gi applikasjonen odds for de ulike resultatene fra en bookmaker, så vil applikasjonen si oss om den tenker oddsene er gunstige eller ikke.
 
 I sportsbetting representerer odds bookmakerens vurdering av sannsynligheten for et bestemt utfall, justert for bookmakerens margin. Det kan derfor være interessant å undersøke om en maskinlæringsmodell kan identifisere situasjoner der dens estimerte sannsynlighet avviker fra sannsynligheten som ligger implisitt i bookmakerens odds.
 
-Løsningen er utviklet som en Python-applikasjon med Streamlit som brukergrensesnitt. Brukeren velger en kommende Premier League-kamp fra en liste og legger inn bookmakerodds for hjemmeseier, uavgjort og borteseier. Applikasjonen henter deretter relevant kampdata fra et eksternt API, beregner egenskaper for de to lagene og sender disse til en ferdig trent maskinlæringsmodell. Resultatet presenteres som sannsynligheter og forventet verdi for hvert av de tre utfallene.
+Løsningen er utviklet som en Python-applikasjon med Streamlit som brukergrensesnitt. Brukeren velger en kommende Premier League-kamp fra en liste og legger inn bookmakerodds for hjemmeseier, uavgjort og borteseier. Applikasjonen henter deretter relevant kampdata fra en ekstern API, regner ut en elo rating for de to lagene som spiller og sender disse med en rekke andre data til en maskinlæringsmodell vi har trent på de samme dataene fra et annet datasett. Resultatet presenteres som sannsynligheter og forventet verdi for hvert av de tre utfallene.
 
-Maskinlæring er relevant for dette problemet fordi kampresultater påvirkes av mange faktorer samtidig. Eksempler er lagenes tidligere prestasjoner, målsnitt, skuddstatistikk, poengfangst og relative styrke. Det er krevende å vurdere alle disse faktorene manuelt på en konsistent måte. En maskinlæringsmodell kan lære statistiske sammenhenger fra historiske kamper og bruke disse til å estimere sannsynligheten for fremtidige resultater.
+Maskinlæring er relevant for dette problemet fordi utfallet til fotballkampen påvirkes av mange ulike statistikker som kan være vanskelige å se sammenhengen mellom og å vektes opp mot hverandre. Eksempler er lagenes tidligere prestasjoner, målsnitt, skuddstatistikk, poengfangst og relative styrke. Det er krevende å vurdere alle disse faktorene manuelt på en konsistent måte. En maskinlæringsmodell kan lære statistiske sammenhenger fra historiske kamper og bruke disse til å estimere sannsynligheten for fremtidige resultater.
 
 En alternativ løsning uten maskinlæring ville vært å utvikle et regelbasert system. Dette kunne for eksempel gitt et lag en høyere vurdering basert på flere seiere, flere scorede mål eller bedre Elo-rating. En slik løsning ville imidlertid krevd at sammenhengen mellom hver faktor og kampresultatet ble definert manuelt. Maskinlæring gir mulighet til å lære disse sammenhengene fra data i stedet.
 
-Prosjektet er først og fremst en demonstrasjon av hvordan maskinlæring kan brukes til å analysere sportsdata og støtte beslutninger. Det er ikke et mål å garantere lønnsom betting. For å kunne vurdere om systemet faktisk gir økonomisk verdi, må det gjennomføres mer omfattende testing over tid.
+Prosjektet er først og fremst en demonstrasjon av hvordan maskinlæring kan brukes til å analysere sportsdata og støtte beslutninger. Det er ikke et mål å garantere lønnsom betting.
 
-### 1.2 Metrikker
+1.2 Metrikker
 
 Modellens ytelse vurderes ved hjelp av flere metrikker:
 
-- **Accuracy:** Andelen kamper der modellen predikerer riktig kampresultat. Dette gir et enkelt mål på hvor ofte modellen velger riktig klasse.
-- **Log loss:** Måler hvor godt modellens estimerte sannsynligheter samsvarer med de faktiske resultatene. Feilaktige prediksjoner med høy sikkerhet straffes spesielt hardt.
-- **Brier score:** Måler avstanden mellom predikerte sannsynligheter og faktiske utfall. En lavere verdi indikerer bedre sannsynlighetsestimering.
-- **Expected Value (EV):** Brukes i applikasjonen for å vurdere bookmakerodds opp mot modellens sannsynligheter.
+Accuracy (53,35 %): Modellen predikerte riktig kampresultat i 53,35 % av kampene. Dette er bedre enn baseline-modellen, som oppnådde 43,10 %. Modellen er dermed bedre enn en enkel modell som baserer prediksjonene på fordelingen av kampresultatene.
 
-For et utfall med sannsynlighet \(P\) og desimalodds \(O\) beregnes forventet verdi slik:
+Log loss (0,9836): Måler kvaliteten på sannsynlighetene modellen beregner for hjemmeseier, uavgjort og borteseier. Modellen oppnådde 0,9836, sammenlignet med 1,0745 for baseline. Den lavere verdien viser at modellen samlet sett gir bedre sannsynlighetsestimater enn baseline.
 
-\[
-EV = P \cdot O - 1
-\]
+Brier score (0,5827): Måler hvor godt modellens beregnede sannsynligheter samsvarer med de faktiske kampresultatene. Resultatet gir et mål på kvaliteten til sannsynlighetsestimatene, der en lavere verdi er bedre.
 
-En positiv forventet verdi betyr at modellens sannsynlighet gir en høyere beregnet verdi enn bookmakeroddsen tilsier. Dette forutsetter imidlertid at modellens sannsynligheter er tilstrekkelig presise og godt kalibrerte.
+Modellen identifiserte 233 av 429 borteseiere og 428 av 534 hjemmeseiere korrekt. Derimot klarte den ikke å predikere noen av de 276 uavgjorte kampene korrekt. Dette viser at modellen har problemer med å identifisere uavgjort som utfall. Modellen favoriserer i stor grad  hjemmeseier og borteseier som utfall. Dette gir en del mening. Bookmakere pleier nesten alltid å ha uavgjort som det 2. eller 3. minst sannsynlige utfallet.
+
+I applikasjonen brukes Expected Value (EV) for å sammenligne modellens sannsynligheter med bookmakerens odds. For et utfall med sannsynlighet (P) og desimalodds (O) beregnes forventet verdi slik: EV = P \cdot O - 1
+
+En positiv forventet verdi betyr at modellens sannsynlighet gir høyere beregnet verdi enn bookmakeroddsen tilsier. Dette forutsetter imidlertid at modellens sannsynligheter er tilstrekkelig presise og godt kalibrerte.
 
 Accuracy alene er derfor ikke tilstrekkelig for å vurdere prosjektets mål. Siden applikasjonen skal sammenligne sannsynligheter med odds, er log loss og Brier score også viktige. En modell kan ha relativt god accuracy, men likevel gi dårlige sannsynlighetsestimater.
 
-Et langsiktig mål er at modellen skal kunne identifisere kamper med positiv forventet verdi på en konsistent måte. Dette må undersøkes gjennom historisk backtesting, der modellens prediksjoner sammenlignes med faktiske bookmakerodds og kampresultater.
+2. DATA
 
-## 2. DATA
-
-### 2.1 Datakilder og datatyper
+2.1 Datakilder og datatyper
 
 Prosjektet benytter to hovedkilder til data.
 
