@@ -53,3 +53,5 @@
     kilder:
 
     [^1] https://www.lsports.eu/blog/machine-learning-in-odds-trading-where-it-works-and-fails
+    Datasett: https://www.kaggle.com/datasets/irkaal/english-premier-league-results
+    API: ttps://sportapi.ai/
